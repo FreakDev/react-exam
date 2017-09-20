@@ -10,7 +10,7 @@ const list = (state = [], action) => {
         ];
       case actions.JEDI_POST_FINSH: 
         return [
-          ...action.payload,
+          action.payload,
           ...state
         ]
       default:

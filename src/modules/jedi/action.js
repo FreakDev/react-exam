@@ -6,9 +6,10 @@ import axios from 'axios';
 
 export const JEDI_LIST_LOADING = 'jedi-list-loading'
 export const JEDI_FORM_LOADING = 'jedi-form-loading'
-export const FETCH_FINISH = 'fetch-finish'
-export const POST_JEDI = 'post-jedi'
-export const POST_FINSH = 'post-finish'
+export const JEDI_FETCH_FINISH = 'fetch-finish'
+export const JEDI_POST_JEDI = 'post-jedi'
+export const JEDI_POST_FINSH = 'post-finish'
+export const JEDI_POST_ERROR = 'post-error'
 
 
 export function loading(state = true) {
@@ -20,7 +21,7 @@ export function loading(state = true) {
 
 export function fetchFinish(data) {
   return {
-    type: FETCH_FINISH,
+    type: JEDI_FETCH_FINISH,
     payload: data,
   }
 }
@@ -34,9 +35,16 @@ export function formLoading(state = true) {
 
 export function postFinish(data) {
   return {
-    type: POST_FINSH,
+    type: JEDI_POST_FINSH,
     payload: data,
   }  
+}
+
+export function postError(data) {
+  return {
+    type: JEDI_POST_ERROR,
+    message: data.split('\n')[0]
+  }
 }
 
 
@@ -55,6 +63,11 @@ export function addJedi(data) {
   return (dispatch) => {
     dispatch(formLoading())
     axios.post('http://localhost:3001/jedi', data)
+      .catch((e) => {
+        if (e.response.status === 500) {
+          dispatch(postError(e.response.data))
+        }
+      })
       .then((res) => {
         dispatch(postFinish(data));
         dispatch(formLoading(false))        

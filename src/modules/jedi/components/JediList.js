@@ -11,7 +11,8 @@ import { fetchJedi, addJedi } from '../action';
 function mapStateToProps(state) {
   return {
     list: state.jedi.list,
-    formLoad: state.jedi.formLoad
+    formLoad: state.jedi.formLoad,
+    formError: state.jedi.formError
   };
 }
 
@@ -28,12 +29,15 @@ export class JediListCmp extends Component {
     }
 
     render () {
-        const { list, onAdd, formLoad } = this.props
+        const { list, onAdd, formLoad, formError } = this.props
         return (
             <div className="App-jedi-list">
-                <Form title="add a Jedi" onSubmit={ onAdd } loading={ formLoad }>
-                    <Field label="id" name="id" type="id"/>
-                    <Field label="name" name="name"/>
+                <Form title="add a Jedi" 
+                      onSubmit={ onAdd } 
+                      loading={ formLoad }
+                      error={ formError }>
+                    <Field label="id" name="id" type="id" required/>
+                    <Field label="name" name="name" required/>
                 </Form>
                 <List data={list} cmp={Jedi} />
             </div>

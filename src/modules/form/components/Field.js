@@ -22,15 +22,42 @@ class Field extends Component {
         label: PropTypes.string
     }    
 
-    _validate(value) {
-        switch (this.props.type) {
-            case 'name':
-                return value.length !== 0
-            case 'id':
-                return (-(-value)) == value // enforce toNumber conversion without throwing error if NaN
-            default:
-                return true
+    componentDidMount() {
+        if (this.props.required) {
+            this.props.onFieldChange({
+                name: this.props.name,
+                value: { error: true, message : `${this.props.name} is invalid` }
+            })    
         }
+    }
+
+    _validate(value) {
+        let isValid;
+
+        const validateNotEmpty = (val) => {
+            return val.length !== 0
+        }
+        const validateNumbers = (val) => {
+            return !isNaN(parseFloat(val))
+        }
+
+        switch (this.props.type) {
+            case 'id':
+                isValid = validateNumbers(value)
+                break;
+            default:
+                isValid = true
+        }
+
+        if (this.props.required) {
+            isValid = isValid && validateNotEmpty(value)
+        }
+
+        if (this.props.onValid) {
+            isValid = isValid && this.props.onValid(value)
+        }
+
+        return isValid
     }
 
     _onChange(e) {
@@ -40,12 +67,10 @@ class Field extends Component {
             isValid
         })
 
-        if (isValid) {
-            this.props.onChange({
-                name: this.props.name,
-                value
-            })
-        }
+        this.props.onFieldChange({
+            name: this.props.name,
+            value: isValid ? value : { error: true, message : `${this.props.name} is invalid` }
+        })
     }
 
     render() {
@@ -58,7 +83,8 @@ class Field extends Component {
                        name={ name } 
                        value={ this.state.value } 
                        type={ type || 'text' }
-                       onChange={ this._onChange } />
+                       onChange={ this._onChange }
+                       onBlur={ this._onChange } />
             </div>
         )
     }    

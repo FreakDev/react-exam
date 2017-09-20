@@ -14,6 +14,10 @@ export class FormCmp extends Component {
         this._onSubmit = this._onSubmit.bind(this)
     }
 
+    state = {
+        error: '' 
+    }
+
     _onFieldChange(e) {
         Object.assign(this.formData, {
             [e.name]: e.value
@@ -22,11 +26,29 @@ export class FormCmp extends Component {
 
     _onSubmit(e) {
         e.preventDefault()
-        this.props.onSubmit && this.props.onSubmit(this.formData)
+
+        const errorMessages = Object.keys(this.formData)
+                                        .map((key) => {
+                                            const val = this.formData[key]
+                                            if (typeof val === 'object' && val.error && val.message)
+                                                return val.message
+                                            else 
+                                                return null
+                                        })
+                                        .filter(v => v !== null)
+
+        this.setState({
+            error: errorMessages.join(', ')
+        })
+
+        if (!errorMessages.length)
+            this.props.onSubmit && this.props.onSubmit(this.formData)
     }
 
     render() {
-        const { children, title, loading, error, errorMessage } = this.props
+        const { children, title, loading } = this.props
+
+        const error = this.props.error || this.state.error
 
         return (
             <form onSubmit={ this._onSubmit }>
@@ -34,9 +56,9 @@ export class FormCmp extends Component {
                     (<h2>{ title }</h2>) :
                     '' }
                 { error ?
-                    <Message msg={ error && errorMessage } type="error"/> :
+                    <Message data={ error } type="error"/> :
                     '' } 
-                { React.Children.map( children, child => React.cloneElement(child, { onChange: this._onFieldChange }) ) }
+                { React.Children.map( children, child => React.cloneElement(child, { onFieldChange: this._onFieldChange }) ) }
                     <input type="submit" />
                 <div className={"loading-layer" + loading ? " visible" : ""}></div>
             </form>
@@ -44,12 +66,11 @@ export class FormCmp extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
+const mapStateToProps = (state, ownProps) => {
+    return Object.assign({
         error: state.form.error,
-        errorMessage: state.form.error && state.form.error.message,
         loading: state.form.loading,
-    }
+    }, ownProps)
 }
 
 const mapDispatchToProps = (dispatch) => {

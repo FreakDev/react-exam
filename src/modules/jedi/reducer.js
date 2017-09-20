@@ -4,11 +4,11 @@ import * as actions from './action'
 
 const list = (state = [], action) => {
     switch (action.type) {
-      case actions.FETCH_FINISH:
+      case actions.JEDI_FETCH_FINISH:
         return [
           ...action.payload,
         ];
-      case actions.POST_FINSH: 
+      case actions.JEDI_POST_FINSH: 
         return [
           ...action.payload,
           ...state
@@ -27,7 +27,17 @@ const formLoad = (state = false, action) => {
   }
 }
 
+const formError = (state = '', action) => {
+  switch (action.type) {
+    case actions.JEDI_POST_ERROR: 
+      return action.message
+    default:
+      return state
+  }
+}
+
 export default combineReducers({
     list,
-    formLoad
+    formLoad,
+    formError
 })

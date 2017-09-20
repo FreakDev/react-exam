@@ -8,25 +8,36 @@ export class FormCmp extends Component {
     constructor(props) {
         super(props)
 
+        this.formData = {}
+
+        this._onFieldChange = this._onFieldChange.bind(this)
         this._onSubmit = this._onSubmit.bind(this)
     }
 
-    _onSubmit() {
-        this.props.onSubmit && this.props.onSubmit()
+    _onFieldChange(e) {
+        Object.assign(this.formData, {
+            [e.name]: e.value
+        })
+    }
+
+    _onSubmit(e) {
+        e.preventDefault()
+        this.props.onSubmit && this.props.onSubmit(this.formData)
     }
 
     render() {
-        const { children, loading, error, errorMessage } = this.props
+        const { children, title, loading, error, errorMessage } = this.props
 
         return (
-            <form onSubmit={ this.onSubmit }>
+            <form onSubmit={ this._onSubmit }>
                 { title ? 
                     (<h2>{ title }</h2>) :
                     '' }
                 { error ?
                     <Message msg={ error && errorMessage } type="error"/> :
                     '' } 
-                { children }
+                { React.Children.map( children, child => React.cloneElement(child, { onChange: this._onFieldChange }) ) }
+                    <input type="submit" />
                 <div className={"loading-layer" + loading ? " visible" : ""}></div>
             </form>
         )

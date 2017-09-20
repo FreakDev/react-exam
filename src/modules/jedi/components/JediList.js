@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Jedi from './Jedi'
+import Form from '../../form/components/Form'
+import Field from '../../form/components/Field'
+import List from '../../layout/components/List'
 
 import { fetchJedi } from '../action';
 
@@ -26,9 +29,10 @@ export class JediListCmp extends Component {
         const { list } = this.props
         return (
             <div className="App-jedi-list">
-            {list.map((jedi, index) => (
-                <Jedi key={index} {...jedi}/>
-            ))}
+                <Form>
+                    <Field />
+                </Form>
+                <List data={list} cmp={Jedi} />
             </div>
         )
     }
